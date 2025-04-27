@@ -13,15 +13,15 @@ app.use(express.json());
 app.use('/api', rutas);
 app.use('/api', estadisticas);
 
-// Leer certificados (de Let's Encrypt o auto-firmado)
-const privateKey = fs.readFileSync('/etc/ssl/private/server.key', 'utf8');
-const certificate = fs.readFileSync('/etc/ssl/certs/server.crt', 'utf8');
+// Leer certificados SSL de Let's Encrypt
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/f-report.xyz/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/f-report.xyz/fullchain.pem', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
-// Servidor HTTPS directo en puerto 3000
+// Servidor HTTPS en puerto 3000
 const httpsServer = https.createServer(credentials, app);
 
 const PORT = 3000;
 httpsServer.listen(PORT, () => {
-  console.log(`Servidor HTTPS corriendo en https://194.195.87.132:3000`);
+  console.log(`Servidor HTTPS corriendo en https://f-report.xyz:${PORT}`);
 });
