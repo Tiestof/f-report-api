@@ -31,8 +31,11 @@ router.get('/estadisticas/carga-tecnicos', (req, res) => {
       COUNT(*) AS total_servicios
     FROM Reporte r
     JOIN Usuario u ON r.rut_usuario = u.rut
+    WHERE 
+      MONTH(r.fecha_reporte) = MONTH(CURDATE()) 
+      AND YEAR(r.fecha_reporte) = YEAR(CURDATE())
     GROUP BY u.nombre, fecha
-    ORDER BY u.nombre, fecha
+    ORDER BY u.nombre, fecha;
   `;
   query(sql, [], res);
 });
