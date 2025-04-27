@@ -18,10 +18,10 @@ const privateKey = fs.readFileSync('/etc/letsencrypt/live/f-report.xyz/privkey.p
 const certificate = fs.readFileSync('/etc/letsencrypt/live/f-report.xyz/fullchain.pem', 'utf8');
 const credentials = { key: privateKey, cert: certificate };
 
-// Servidor HTTPS en puerto 3000
+// Servidor HTTPS en puerto 443 (estándar)
 const httpsServer = https.createServer(credentials, app);
 
-const PORT = 3000;
+const PORT = 443;
 httpsServer.listen(PORT, () => {
-  console.log(`Servidor HTTPS corriendo en https://f-report.xyz:${PORT}`);
+  console.log(`Servidor HTTPS corriendo en https://f-report.xyz`);
 });
