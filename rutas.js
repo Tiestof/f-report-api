@@ -11,6 +11,23 @@ const query = (sql, params, res) => {
   });
 };
 
+// Validacion mejora para la funcion utilitaria - proxima integracion.
+/*
+const query = (sql, params, res) => {
+  db.query(sql, params, (err, result) => {
+    if (err) return res.status(500).json({ error: err.sqlMessage || 'Error de base de datos' });
+
+    const esUpdateOrDelete = sql.trim().toUpperCase().startsWith('UPDATE') || sql.trim().toUpperCase().startsWith('DELETE');
+    
+    if (esUpdateOrDelete && result.affectedRows === 0) {
+      return res.status(404).json({ error: 'No se encontró el registro para actualizar o eliminar' });
+    }
+
+    res.json(result);
+  });
+};
+*/
+
 // === LOGIN (AUTENTICACIÓN + DATOS DE USUARIO + REPORTES ASOCIADOS) ===
 router.post('/login', (req, res) => {
   const { rut, clave } = req.body;
