@@ -63,4 +63,48 @@ router.get('/estadisticas/servicios-del-mes', (req, res) => {
   query(sql, [], res);
 });
 
+// === 5. Actividades de técnicos para hoy (incluye disponibles) ===
+router.get('/estadisticas/actividades-hoy', async (req, res) => {
+  const sqlConTareas = `
+    SELECT 
+      u.nombre AS nombre_tecnico,
+      c.nombre_cliente AS nombre_cliente,
+      TIME_FORMAT(r.hora_inicio, '%H:%i') AS hora_inicio,
+      es.descripcion AS estado
+    FROM Reporte r
+    JOIN Usuario u ON r.rut_usuario = u.rut
+    JOIN EstadoServicio es ON r.id_estado_servicio = es.id_estado_servicio
+    JOIN Cliente c ON r.id_cliente = c.id_cliente
+    WHERE DATE(r.fecha_reporte) = CURDATE()
+      AND u.id_tipo_usuario != 2
+  `;
+
+  const sqlUsuarios = `
+    SELECT nombre FROM Usuario WHERE id_tipo_usuario != 2
+  `;
+
+  try {
+    const [conTareas, usuarios] = await Promise.all([
+      new Promise((resolve, reject) => db.query(sqlConTareas, (err, rows) => err ? reject(err) : resolve(rows))),
+      new Promise((resolve, reject) => db.query(sqlUsuarios, (err, rows) => err ? reject(err) : resolve(rows))),
+    ]);
+
+    const usuariosConTareas = new Set(conTareas.map(t => t.nombre_tecnico));
+    const disponibles = usuarios
+      .filter(t => !usuariosConTareas.has(t.nombre))
+      .map(t => ({ nombre_tecnico: t.nombre, estado: 'Disponible' }));
+
+    const resultado = [...conTareas, ...disponibles].sort((a, b) => {
+      const ha = a.hora_inicio || '99:99';
+      const hb = b.hora_inicio || '99:99';
+      return ha.localeCompare(hb);
+    });
+
+    res.json(resultado);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener actividades del día' });
+  }
+});
+
 module.exports = router;
